@@ -53,7 +53,7 @@ Request factories
 :class:`django.test.AsyncRequestFactory` and creates ASGI requests.
 
 Like Django request factories, they create a request object but do not send it
-through URL routing or middleware. Pass the request directly to
+through URL routing or middlewares. Pass the request directly to
 ``Controller.as_view()`` instead. For async controllers, create the request
 synchronously and await the controller response. Use
 ``DMRAsyncRequestFactory.wrap()`` when static type checkers need help

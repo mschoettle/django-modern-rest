@@ -2,7 +2,7 @@ Plugins
 =======
 
 To be able to support multiple :term:`serializer` models
-like ``pydantic`` and ``msgspec``, we have a concept of a plugin.
+like ``pydantic`` and ``msgspec``, we have the concept of a plugin.
 
 There are several bundled ones, but you can write your own as well.
 To do that see our advanced :ref:`serializer` guide.
@@ -23,7 +23,7 @@ for the :term:`controller` definition.
     .. tip::
 
       If you only use ``json`` :doc:`parsers and renderers <negotiation>`,
-      it would be faster to use
+      it is faster to use
       :class:`~dmr.plugins.pydantic.PydanticFastSerializer` instead.
 
     .. code:: python
@@ -34,7 +34,7 @@ for the :term:`controller` definition.
 Customizing serializers
 -----------------------
 
-There are several things why you can possibly want
+There are several reasons why you might want
 to customize an existing serializer.
 
 Support more data types
@@ -44,17 +44,17 @@ By default,
 :meth:`~dmr.serializer.BaseSerializer.serialize_hook`
 and
 :meth:`~dmr.serializer.BaseSerializer.deserialize_hook`
-support not that many types.
+do not support that many types.
 
-You can customize the serializer to know how to serializer / deserialize
+You can customize the serializer to know how to serialize/deserialize
 more types by extending it and customizing the method you need.
 
 
 Customizing the serializer context
 ----------------------------------
 
-We use :class:`dmr.endpoint.SerializerContext` type
-to deserialize all components from a single model, so it would be much faster
+We use the :class:`dmr.endpoint.SerializerContext` type
+to deserialize all components from a single model, so it is much faster
 than parsing each component separately.
 
 This class can be customized for several reasons.
@@ -65,19 +65,19 @@ Change the default strictness
 Tools like ``pydantic`` offer several useful type conversions in non-strict mode.
 For example, ``'1'`` can be parsed as ``1`` if strict mode is not enabled.
 
-It is kinda useful for request bodies, where you don't control the clients.
+It can be useful for request bodies where you don't have control of the clients.
 
 Here's how we determine the default strictness for ``pydantic`` models:
 
 1. If :attr:`~dmr.endpoint.SerializerContext.strict_validation`
    is not ``None``, we return the serializer-level strictness
-2. Then ``pydantic`` looks at ``strict`` attribute
+2. Then ``pydantic`` looks at the ``strict`` attribute
    in :class:`~pydantic.config.ConfigDict`
-3. Then ``pydantic`` looks at ``strict`` attribute
+3. Then ``pydantic`` looks at the ``strict`` attribute
    for individual :func:`~pydantic.fields.Field` items
 
 We recommend to change the strictness on a per-model basis, but if you want to,
-you can subclass the ``SerializerContext`` to be strict / non-strict
+you can subclass the ``SerializerContext`` to be strict/non-strict
 and use it for all controllers.
 
 
@@ -87,34 +87,34 @@ Endpoint optimizers
 Before actually serving any requests, during import-time,
 we try to optimize the future validation.
 
-For example, :class:`pydantic.TypeAdapter` takes time to be created.
-Why doing it on the first request, when we can do that during the import time?
+For example, a :class:`pydantic.TypeAdapter` takes time to be created.
+Why create it on the first request, when we can do that during import time?
 
 Each serializer must provide a type, which must be a subclass
 of :class:`~dmr.serializer.BaseEndpointOptimizer`
-to optimize / pre-compile / create / cache things that it can.
+to optimize/pre-compile/create/cache things that it can.
 
 
 Writing a custom plugin
 ------------------------
 
-Our API is flexible enough to potentially support any custom
+Our API is flexible enough to support any custom
 third-party serializers of your choice, like:
 
 - https://github.com/python-attrs/cattrs
 - https://github.com/reagento/adaptix
-- etc
+- etc.
 
 Follow the API of :class:`~dmr.plugins.pydantic.PydanticSerializer`
 and :class:`~dmr.plugins.msgspec.MsgspecSerializer`.
 
-You would need to:
+You will need to:
 
-- Provide a way to serializer and deserialize your models
-- Provide serializer error converter by overriding
+- Provide a way to serialize and deserialize your models
+- Provide a serializer error converter by overriding the
   :meth:`~dmr.serializer.BaseSerializer.serialize_validation_error` method
-- Provide a way to get the OpenAPI / JsonSchema schema from your models,
-  see :class:`dmr.serializer.BaseSchemaGenerator`. Example implementations:
+- Provide a way to get the OpenAPI/JsonSchema schema from your models
+  (see :class:`dmr.serializer.BaseSchemaGenerator`). Example implementations:
   :class:`~dmr.plugins.pydantic.schema.PydanticSchemaGenerator`
   and :class:`~dmr.plugins.msgspec.schema.MsgspecSchemaGenerator`
 
@@ -125,7 +125,7 @@ Pydantic plugin
 PydanticFastSerializer
 ~~~~~~~~~~~~~~~~~~~~~~
 
-``pydantic`` plugin contains one extra serializer optimized for ``json`` usage.
+The ``pydantic`` plugin contains one extra serializer optimized for ``json`` usage.
 Our regular API requires :doc:`parsers and renderers <negotiation>`
 to format the final response,
 so you can negotiate the request and response formats.
@@ -136,11 +136,11 @@ and responses (which is quite common), use
 
 .. warning::
 
-  It will ignore all parsers and serializers and use the ``pydantic``
+  It will ignore all parsers and serializers and use only the ``pydantic``
   own way to serialize and deserialize objects to ``json`` bytestring.
 
-It will work from **3 up 10 times** faster depending on the data
-then the common serializer.
+It will work from **3 up to 10 times** faster depending on the data
+than the common serializer.
 
 .. literalinclude:: /examples/plugins/pydantic_fast.py
   :caption: views.py
@@ -149,20 +149,20 @@ then the common serializer.
   :emphasize-lines: 12
 
 No API changes are required to use it
-if you don't use other request / response formats.
+if you don't use other request/response formats.
 
-Serialization / deserialization flags
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Serialization/deserialization flags
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-We have to special attributes to change how ``pydantic`` serializes data:
+We have two special attributes to change how ``pydantic`` serializes data:
 
 1. :attr:`~dmr.plugins.pydantic.PydanticSerializer.to_json_kwargs`
    for serialization purposes
 2. :attr:`~dmr.plugins.pydantic.PydanticSerializer.to_model_kwargs`
    for deserialization purposes
 
-By default these flags only pass ``{'by_alias': True}``
-to support field aliases, when they are defined.
+By default, these flags only pass ``{'by_alias': True}``
+to support field aliases when they are defined.
 
 For example, when working with :class:`pydantic.types.Json`,
 one can set ``round_trip`` to ``True``
@@ -185,9 +185,9 @@ Msgspec plugin
 attrs support
 ~~~~~~~~~~~~~
 
-We support :func:`attrs.define` via ``msgspec`` compatibility layer.
+We support :func:`attrs.define` via the ``msgspec`` compatibility layer.
 It has its own limitations.
-See `msgspec docs <https://msgspec.dev/supported-types#attrs>`_.
+See the `msgspec docs <https://msgspec.dev/supported-types#attrs>`_.
 
 Native support of ``attrs`` can be implemented in the future
 with its own serializer.

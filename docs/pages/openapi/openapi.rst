@@ -7,13 +7,13 @@ including every object and field that these specifications define.
 .. note::
 
   By default, we use OpenAPI ``3.1.0``, since tooling such as Swagger, Scalar,
-  Redoc, and Stoplight does not yet fully support the latest specification.
+  Redoc, and Stoplight do not yet fully support the latest specification.
   You can track the `current progress here <https://github.com/wemake-services/django-modern-rest/issues/519>`_.
 
 .. important::
 
   OpenAPI ``3.0.x`` is not supported. It predates JSON Schema,
-  while we generate all model schemas as JSON Schema with ``pydantic``
+  and we generate all model schemas as JSON Schema with ``pydantic``
   or ``msgspec``. Passing it to :class:`dmr.openapi.OpenAPIConfig`
   raises a ``ValueError``.
 
@@ -33,11 +33,12 @@ We support:
   with :class:`~dmr.openapi.views.StoplightView`
 - ``openapi.json`` with :class:`~dmr.openapi.views.OpenAPIJsonView`
 - ``openapi.yaml`` with :class:`~dmr.openapi.views.yaml.OpenAPIYamlView`
-  when ``[openapi]`` extra is installed
+  when the ``[openapi]`` extra is installed
 
 .. important::
 
-  We recommend installing ``'django-modern-rest[openapi]'`` when working with
+  We recommend installing ``django-modern-rest`` with the ``openapi``
+  extra (``django-modern-rest[openapi]``) when working with
   OpenAPI. It enables schema validation, adds
   :class:`~dmr.openapi.views.yaml.OpenAPIYamlView`, and supports
   :ref:`automatic example generation <openapi-examples-generation>`.
@@ -58,12 +59,12 @@ for the interactive docs.
 
 What happens in the example above?
 
-1. We create / take an existing API :class:`dmr.routing.Router` instance
+1. We create/take an existing :class:`dmr.routing.Router` instance
    and create an OpenAPI schema
    from it using :func:`~dmr.openapi.build_schema`
-2. Next, we define regular Django views that will serve you the API renderers
+2. Next, we define regular Django views that will serve the API renderers
 3. You can modify these views
-   to :func:`require auth / role / permissions / etc <django.contrib.auth.decorators.login_required>`
+   to :func:`require auth/role/permissions/etc. <django.contrib.auth.decorators.login_required>`
    as all other regular Django views
 
 Caching schema responses
@@ -115,7 +116,7 @@ In production, make sure your static files setup is correct as described in the
 and the
 `staticfiles app reference <https://docs.djangoproject.com/en/stable/ref/contrib/staticfiles/>`_.
 
-If you switch renderers to CDN assets via
+If you switch renderers to use CDN assets via
 :data:`dmr.settings.Settings.openapi_static_cdn`,
 local static file serving is no longer required for those assets,
 but adding ``'dmr'`` to the list of installed apps and template
@@ -127,8 +128,8 @@ discovery are **still required**.
   shipped with ``django-modern-rest`` and served by Django.
   To switch any renderer to a CDN, configure
   :data:`dmr.settings.Settings.openapi_static_cdn`.
-  Only renderers listed in that mapping will use CDN;
-  all others keep using local static files.
+  Only renderers listed in that mapping will use a CDN.
+  All others keep using local static files.
   Exact bundled versions and license texts are documented in ``licenses/``.
 
   You can also modify the exact versions that we use for each tool this way.
